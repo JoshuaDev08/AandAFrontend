@@ -1,0 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap");
+
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "aanda";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #f7f4ed;
+  --color-base-200: #e8dfd1;
+  --color-base-300: #d8cbb8;
+  --color-base-content: #242824;
+
+  --color-primary: #173d32;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #879b83;
+  --color-secondary-content: #173d32;
+
+  --color-accent: #c4a56a;
+  --color-accent-content: #242824;
+
+  --color-neutral: #242824;
+  --color-neutral-content: #ffffff;
+
+  --color-info: #3b82f6;
+  --color-info-content: #ffffff;
+
+  --color-success: #247a50;
+  --color-success-content: #ffffff;
+
+  --color-warning: #eab308;
+  --color-warning-content: #242824;
+
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-display: "Playfair Display", serif;
+  --font-sans: "DM Sans", sans-serif;
+}
