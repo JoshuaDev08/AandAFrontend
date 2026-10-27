@@ -3,7 +3,8 @@ import BookingBar from "../sections/BookingBar";
 import FeaturedLocations from "../sections/FeaturedLocations";
 import Introduction from "../sections/Introduction";
 // import FeaturedLocations from "../sections/FeaturedLocations";
-// import Accommodations from "../sections/Accommodations";
+import Accommodations from "../sections/Accommodations";
+import Collections from "../sections/Collections";
 // import Experiences from "../sections/Experiences";
 // import Events from "../sections/Events";
 // import Gallery from "../sections/Gallery";
@@ -18,6 +19,8 @@ export default function HomePage() {
       <BookingBar />
       <FeaturedLocations />
       <Introduction />
+      <Accommodations />
+      <Collections />
       {/* Next sections will be added here. */}
     </>
   );
