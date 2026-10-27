@@ -7,7 +7,7 @@ const navLinks = [
   { label: "Locations", to: "/locations" },
   { label: "Stay", to: "/accommodations" },
   { label: "Explore", to: "/explore" },
-  { label: "About", to: "/about" },
+  { label: "Our Story", to: "/about-us" },
   { label: "Contact", to: "/contact" },
 ];
 

@@ -1,6 +1,7 @@
 import Hero from "../sections/Hero";
 import BookingBar from "../sections/BookingBar";
-// import Introduction from "../sections/Introduction";
+import FeaturedLocations from "../sections/FeaturedLocations";
+import Introduction from "../sections/Introduction";
 // import FeaturedLocations from "../sections/FeaturedLocations";
 // import Accommodations from "../sections/Accommodations";
 // import Experiences from "../sections/Experiences";
@@ -15,6 +16,8 @@ export default function HomePage() {
     <>
       <Hero />
       <BookingBar />
+      <FeaturedLocations />
+      <Introduction />
       {/* Next sections will be added here. */}
     </>
   );
