@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import LocationCard from "../components/card/LocationCard";
+import LocationCard from "../components/cards/LocationCard";
 
 import { useLocations } from "../hooks/usePublicData";
 

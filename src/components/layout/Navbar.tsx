@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+
+import ExploreDropdown from "./ExploreDropdown";
+import { exploreLinks } from "./ExploreLinks";
 
 const navLinks = [
   { label: "Locations", to: "/locations" },
   { label: "Stay", to: "/accommodations" },
-  { label: "Explore", to: "/explore" },
   { label: "Our Story", to: "/about-us" },
   { label: "Contact", to: "/contact" },
 ];
+
+const desktopBeforeExplore = navLinks.slice(0, 2);
+const desktopAfterExplore = navLinks.slice(2);
 
 const menuVariants = {
   hidden: {
@@ -56,13 +61,14 @@ export default function Navbar() {
 
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
 
-  // Detect scrolling.
+  // Navbar glass behavior.
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
@@ -77,18 +83,20 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [location.pathname]);
 
-  // Close menu on navigation.
+  // Close mobile navigation on route changes.
   useEffect(() => {
     setOpen(false);
-  }, [location.pathname]);
+    setExploreOpen(false);
+  }, [location.pathname, location.hash]);
 
-  // Mobile menu accessibility and body scroll lock.
+  // Body scroll lock and keyboard focus trap.
   useEffect(() => {
     if (!open) {
       if (wasOpenRef.current) {
         menuButtonRef.current?.focus();
         wasOpenRef.current = false;
       }
+
       return;
     }
 
@@ -154,6 +162,41 @@ export default function Navbar() {
         visible: { opacity: 1 },
       }
     : itemVariants;
+
+  const renderDesktopLink = ({ label, to }: { label: string; to: string }) => (
+    <NavLink
+      key={to}
+      to={to}
+      className={({ isActive }) => `
+        group relative py-3
+        text-[11px] font-medium
+        tracking-[0.055em]
+        transition-opacity duration-300
+        hover:opacity-75
+        ${isActive ? "font-semibold" : ""}
+      `}
+    >
+      {({ isActive }) => (
+        <>
+          {label}
+
+          <span
+            className={`
+              absolute bottom-[5px] left-0
+              h-px bg-current
+              transition-all duration-300
+              ${isActive ? "w-full" : "w-0 group-hover:w-full"}
+            `}
+          />
+        </>
+      )}
+    </NavLink>
+  );
+
+  const closeMobileMenu = () => {
+    setOpen(false);
+    setExploreOpen(false);
+  };
 
   return (
     <>
@@ -224,50 +267,22 @@ export default function Navbar() {
             lg:flex xl:gap-9
           "
         >
-          {navLinks.map(({ label, to }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `
-                group relative
-                py-3 text-[11px]
-                font-medium tracking-[0.055em]
-                transition-opacity duration-300
-                hover:opacity-75
-                ${isActive ? "font-semibold" : ""}
-                `
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {label}
+          {desktopBeforeExplore.map(renderDesktopLink)}
 
-                  {/* Underline */}
-                  <span
-                    className={`
-                      absolute bottom-[5px] left-0
-                      h-px bg-current
-                      transition-all duration-300
-                      ${isActive ? "w-full" : "w-0 group-hover:w-full"}
-                    `}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
+          <ExploreDropdown />
+
+          {desktopAfterExplore.map(renderDesktopLink)}
         </nav>
 
-        {/* DESKTOP CTA */}
+        {/* DESKTOP BOOKING CTA */}
         <Link
           to="/availability"
           className="
             group hidden min-h-[43px]
-            items-center justify-center
-            gap-3 border border-current
-            px-5 text-[10px]
-            font-semibold uppercase
-            tracking-[0.13em]
+            items-center justify-center gap-3
+            border border-current px-5
+            text-[10px] font-semibold
+            uppercase tracking-[0.13em]
             transition-all duration-300
             hover:border-primary
             hover:bg-primary
@@ -287,7 +302,7 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* MOBILE TRIGGER */}
+        {/* MOBILE MENU BUTTON */}
         <button
           ref={menuButtonRef}
           type="button"
@@ -296,8 +311,7 @@ export default function Navbar() {
           aria-controls="mobile-navigation"
           onClick={() => setOpen(true)}
           className="
-            relative z-10
-            flex h-11 w-11
+            relative z-10 flex h-11 w-11
             items-center justify-center
             border border-current/20
             transition-colors duration-300
@@ -309,7 +323,7 @@ export default function Navbar() {
         </button>
       </motion.header>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE NAVIGATION */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -325,19 +339,16 @@ export default function Navbar() {
             exit="exit"
             className="
               fixed inset-0 z-[60]
-              flex flex-col
-              overflow-y-auto
-              bg-base-100 text-primary
-              px-6 pb-8 pt-8
-              sm:px-10
-              lg:hidden
+              flex flex-col overflow-y-auto
+              bg-base-100 px-6 pb-8 pt-8
+              text-primary sm:px-10 lg:hidden
             "
           >
             {/* MOBILE HEADER */}
             <div className="flex items-start justify-between">
               <Link
                 to="/"
-                onClick={() => setOpen(false)}
+                onClick={closeMobileMenu}
                 className="flex flex-col leading-none"
               >
                 <span className="font-serif text-[30px] tracking-[0.04em]">
@@ -353,7 +364,7 @@ export default function Navbar() {
                 ref={closeButtonRef}
                 type="button"
                 aria-label="Close navigation menu"
-                onClick={() => setOpen(false)}
+                onClick={closeMobileMenu}
                 className="
                   flex h-11 w-11
                   items-center justify-center
@@ -375,36 +386,150 @@ export default function Navbar() {
                 py-12 sm:gap-5
               "
             >
+              {/* HOME */}
               <motion.div variants={linkMotion}>
                 <NavLink
                   to="/"
                   end
-                  onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    `block font-serif text-[clamp(35px,8vw,57px)] leading-[1.12] transition-colors hover:text-secondary ${
-                      isActive ? "text-secondary" : ""
-                    }`
-                  }
+                  onClick={closeMobileMenu}
+                  className={({ isActive }) => `
+                    block font-serif
+                    text-[clamp(35px,8vw,57px)]
+                    leading-[1.12]
+                    transition-colors hover:text-secondary
+                    ${isActive ? "text-secondary" : ""}
+                  `}
                 >
                   Home
                 </NavLink>
               </motion.div>
 
-              {navLinks.map(({ label, to }) => (
+              {/* LOCATIONS + STAY */}
+              {desktopBeforeExplore.map(({ label, to }) => (
                 <motion.div key={to} variants={linkMotion}>
                   <NavLink
                     to={to}
-                    onClick={() => setOpen(false)}
-                    className={({ isActive }) =>
-                      `
+                    onClick={closeMobileMenu}
+                    className={({ isActive }) => `
+                      block font-serif
+                      text-[clamp(35px,8vw,57px)]
+                      leading-[1.12]
+                      transition-colors hover:text-secondary
+                      ${isActive ? "text-secondary" : ""}
+                    `}
+                  >
+                    {label}
+                  </NavLink>
+                </motion.div>
+              ))}
+
+              {/* MOBILE EXPLORE ACCORDION */}
+              <motion.div variants={linkMotion}>
+                <div className="flex items-center justify-between gap-3">
+                  <Link
+                    to="/explore"
+                    onClick={closeMobileMenu}
+                    className={`
+                      font-serif text-[clamp(35px,8vw,57px)]
+                      leading-[1.12]
+                      transition-colors hover:text-secondary
+                      ${
+                        location.pathname === "/explore" ? "text-secondary" : ""
+                      }
+                    `}
+                  >
+                    Explore
+                  </Link>
+
+                  <button
+                    type="button"
+                    aria-label="Toggle Explore submenu"
+                    aria-expanded={exploreOpen}
+                    aria-controls="mobile-explore-submenu"
+                    onClick={() => setExploreOpen((value) => !value)}
+                    className="
+                      flex h-11 w-11 shrink-0
+                      items-center justify-center
+                      border border-primary/20
+                      transition-colors hover:bg-primary/5
+                    "
+                  >
+                    <ChevronDown
+                      size={21}
+                      strokeWidth={1.5}
+                      className={`transition-transform duration-300 ${
+                        exploreOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {exploreOpen && (
+                    <motion.div
+                      id="mobile-explore-submenu"
+                      initial={{
+                        height: 0,
+                        opacity: 0,
+                      }}
+                      animate={{
+                        height: "auto",
+                        opacity: 1,
+                      }}
+                      exit={{
+                        height: 0,
+                        opacity: 0,
+                      }}
+                      transition={{
+                        duration: reduceMotion ? 0 : 0.3,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mb-2 ml-2 mt-5 flex flex-col gap-1 border-l border-primary/15 pl-5">
+                        {exploreLinks.map(({ label, to, icon: Icon }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            onClick={closeMobileMenu}
+                            className="
+                                group flex items-center
+                                gap-3 py-3 text-[13px]
+                                font-medium tracking-[0.02em]
+                                text-primary/75
+                                transition-colors
+                                hover:text-primary
+                              "
+                          >
+                            <Icon
+                              size={17}
+                              strokeWidth={1.5}
+                              className="text-secondary"
+                            />
+
+                            <span>{label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* OUR STORY + CONTACT */}
+              {desktopAfterExplore.map(({ label, to }) => (
+                <motion.div key={to} variants={linkMotion}>
+                  <NavLink
+                    to={to}
+                    onClick={closeMobileMenu}
+                    className={({ isActive }) => `
                       block font-serif
                       text-[clamp(35px,8vw,57px)]
                       leading-[1.12]
                       transition-colors duration-300
                       hover:text-secondary
                       ${isActive ? "text-secondary" : ""}
-                      `
-                    }
+                    `}
                   >
                     {label}
                   </NavLink>
@@ -412,17 +537,16 @@ export default function Navbar() {
               ))}
             </motion.nav>
 
-            {/* MOBILE FOOTER */}
+            {/* MOBILE FOOTER CTA */}
             <motion.div
               variants={linkMotion}
               className="border-t border-primary/15 pt-6"
             >
               <Link
                 to="/availability"
-                onClick={() => setOpen(false)}
+                onClick={closeMobileMenu}
                 className="
-                  btn btn-primary
-                  flex h-14 w-full
+                  btn btn-primary flex h-14 w-full
                   items-center justify-between
                   rounded-none px-6
                   text-[11px] font-semibold
